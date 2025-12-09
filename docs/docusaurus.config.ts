@@ -6,7 +6,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 
 const config: Config = {
   title: "AKS Workshop",
-  tagline: "AKS에 Service Mesh를 구성하고 실습합니다",
+  tagline: "AKS를 구성하고 실습합니다",
   favicon: "img/favicon.ico",
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
