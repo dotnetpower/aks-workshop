@@ -19,6 +19,11 @@ Azure Kubernetes Service(AKS)와 Istio Service Mesh를 활용한 실전 Kubernet
 
 ## 🚀 워크샵 주제
 
+### 환경 설정
+* 사전 요구 사항
+* AKS 클러스터 생성
+* **[AKS Best Practices & Security Baseline](docs/docs/setup/aks-best-practices.md)** - 프로덕션 운영 가이드
+
 ### Kubernetes 기초
 * Deployment, Service, ConfigMap, Secret
 * Blue-Green 배포 및 Canary 배포
@@ -42,6 +47,11 @@ Azure Kubernetes Service(AKS)와 Istio Service Mesh를 활용한 실전 Kubernet
 * KEDA (Event-driven Autoscaling)
   * RabbitMQ 기반 스케일링
   * Cron 기반 스케일링
+
+### 실전 Kubernetes (NEW! 🚀)
+* **[Kustomize](docs/docs/production/kustomize.md)** - 환경별 구성 관리 및 GitOps
+* **[ArgoCD](docs/docs/production/argocd.md)** - GitOps 지속적 배포 및 자동화
+* **[부하 테스트](docs/docs/production/load-testing.md)** - 성능 검증 및 최적화
 
 ### Service Mesh (Istio)
 * Traffic Management (Request Routing, Traffic Shifting)

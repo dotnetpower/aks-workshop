@@ -6,7 +6,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "환경 설정",
-      items: ["setup/prerequisites", "setup/cluster-setup"],
+      items: [
+        "setup/prerequisites",
+        "setup/cluster-setup",
+        "setup/aks-best-practices",
+      ],
     },
     {
       type: "category",
@@ -17,7 +21,6 @@ const sidebars: SidebarsConfig = {
         "kubernetes-basics/services",
         "kubernetes-basics/configmaps",
         "kubernetes-basics/secrets",
-        "kubernetes-basics/kustomize",
         "kubernetes-basics/blue-green-deployments",
         "kubernetes-basics/canary-deployments",
       ],
@@ -62,6 +65,16 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "모니터링",
       items: ["monitoring/overview"],
+    },
+    {
+      type: "category",
+      label: "실전 Kubernetes",
+      items: [
+        "production/intro",
+        "production/kustomize",
+        "production/argocd",
+        "production/load-testing",
+      ],
     },
     {
       type: "category",

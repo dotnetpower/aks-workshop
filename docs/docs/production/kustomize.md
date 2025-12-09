@@ -807,57 +807,494 @@ rm -rf ~/kustomize-demo
 
 ### 1. 디렉토리 구조
 
+**권장 구조**:
 ```
 project/
-├── base/               # 공통 리소스
+├── base/                          # 공통 리소스
 │   ├── kustomization.yaml
-│   └── *.yaml
-├── overlays/          # 환경별 설정
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── configmap.yaml
+│   └── rbac.yaml
+├── overlays/                      # 환경별 설정
 │   ├── dev/
+│   │   ├── kustomization.yaml
+│   │   ├── namespace.yaml
+│   │   ├── replica-patch.yaml
+│   │   └── configmap-patch.yaml
 │   ├── staging/
+│   │   ├── kustomization.yaml
+│   │   ├── namespace.yaml
+│   │   └── scaling-patch.yaml
 │   └── prod/
-└── components/        # 재사용 가능한 컴포넌트
+│       ├── kustomization.yaml
+│       ├── namespace.yaml
+│       ├── scaling-patch.yaml
+│       ├── hpa.yaml
+│       └── network-policy.yaml
+└── components/                    # 재사용 가능한 컴포넌트
     ├── monitoring/
-    └── security/
+    │   ├── kustomization.yaml
+    │   ├── prometheus-annotations.yaml
+    │   └── serviceMonitor.yaml
+    ├── security/
+    │   ├── kustomization.yaml
+    │   ├── pod-security-policy.yaml
+    │   └── network-policy.yaml
+    └── ingress/
+        ├── kustomization.yaml
+        └── ingress.yaml
 ```
 
-### 2. Base 최소화
+### 2. Base 리소스 설계
 
-- Base에는 모든 환경에 공통인 설정만 포함
-- 환경별 차이는 Overlay에서만 정의
-- 기본값은 가장 제한적으로 설정
+**원칙**:
+- ✅ 모든 환경에 공통인 설정만 포함
+- ✅ 환경별 차이는 Overlay에서만 정의
+- ✅ 기본값은 가장 제한적이고 안전하게 설정
+- ✅ 리소스별로 파일을 분리하여 관리
+- ✅ 의존성이 없는 순수한 Kubernetes 매니페스트
 
-### 3. ConfigMap/Secret 관리
-
-- 민감 정보는 `.gitignore`에 추가
-- Secret은 외부 시크릿 관리 도구 사용 권장
-- ConfigMap Generator로 해시 접미사 자동 생성
-
-### 4. 버전 관리
-
+**예시**:
 ```yaml
-# 이미지 태그 명시
-images:
-  - name: myapp
-    newTag: v1.2.3  # latest 대신 특정 버전 사용
-```
-
-### 5. 검증 자동화
-
-```bash
-# CI/CD에서 Kustomize 검증
-kustomize build overlays/prod/ | kubeval --strict
-```
-
-### 6. 문서화
-
-```yaml
-# kustomization.yaml에 주석 추가
+# base/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# 이 설정은 프로덕션 환경용입니다
-# 복제본: 5, 리소스: 높음, 모니터링: 활성화
+# 리소스 순서 명시 (의존성 순서대로)
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
+  - service.yaml
+  - deployment.yaml
+
+# 모든 리소스에 공통 레이블 추가
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/part-of: myapp
+
+# 공통 어노테이션
+commonAnnotations:
+  documentation: "https://github.com/myorg/myapp"
+```
+
+### 3. Overlay 설계 패턴
+
+**환경별 분리 전략**:
+
+```yaml
+# overlays/dev/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+namePrefix: dev-
+
+bases:
+  - ../../base
+
+# 개발 환경 특성
+commonLabels:
+  environment: dev
+
+# 낮은 리소스 설정
+patchesStrategicMerge:
+  - replica-patch.yaml      # replicas: 1
+  - resource-patch.yaml     # 낮은 CPU/Memory
+
+# 개발용 이미지 태그
+images:
+  - name: myapp
+    newTag: dev-latest
+
+# 개발 환경 ConfigMap
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=debug
+      - ENABLE_DEBUG=true
+```
+
+```yaml
+# overlays/prod/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: prod
+
+namePrefix: prod-
+
+bases:
+  - ../../base
+
+# 프로덕션 환경 특성
+commonLabels:
+  environment: prod
+  tier: production
+
+# 프로덕션 보안 및 성능
+patchesStrategicMerge:
+  - replica-patch.yaml      # replicas: 5
+  - resource-patch.yaml     # 높은 CPU/Memory
+  - security-patch.yaml     # SecurityContext
+  - probe-patch.yaml        # Liveness/Readiness
+
+# 추가 리소스
+resources:
+  - hpa.yaml
+  - network-policy.yaml
+  - pod-disruption-budget.yaml
+
+# 프로덕션 이미지 (불변 태그)
+images:
+  - name: myapp
+    newTag: v1.2.3
+
+# 프로덕션 ConfigMap
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=warn
+      - ENABLE_DEBUG=false
+      - CACHE_ENABLED=true
+
+# 모니터링 컴포넌트
+components:
+  - ../../components/monitoring
+  - ../../components/security
+```
+
+### 4. ConfigMap/Secret 관리
+
+**ConfigMap 패턴**:
+
+```yaml
+# base/kustomization.yaml
+configMapGenerator:
+  - name: app-config
+    literals:
+      - APP_NAME=myapp
+      - APP_VERSION=1.0.0
+    files:
+      - configs/app.properties
+
+# Overlay에서 병합
+# overlays/prod/kustomization.yaml
+configMapGenerator:
+  - name: app-config
+    behavior: merge  # 중요: merge 사용
+    literals:
+      - ENVIRONMENT=production
+```
+
+**Secret 관리 Best Practices**:
+
+```bash
+# 1. Secret 파일은 .gitignore에 추가
+echo "overlays/*/secret*.yaml" >> .gitignore
+echo "overlays/*/*.env" >> .gitignore
+
+# 2. 외부 Secret 관리 도구 사용 (권장)
+# - Azure Key Vault
+# - HashiCorp Vault
+# - Sealed Secrets
+# - External Secrets Operator
+
+# 3. Secret Generator 사용 시
+cat <<EOF > overlays/prod/kustomization.yaml
+secretGenerator:
+  - name: app-secrets
+    envs:
+      - secret.env  # Git에 커밋하지 않음
+    options:
+      disableNameSuffixHash: false  # 해시 접미사 유지
+EOF
+```
+
+### 5. 이미지 버전 관리
+
+**태그 전략**:
+
+```yaml
+# ❌ 나쁜 예
+images:
+  - name: myapp
+    newTag: latest  # 예측 불가능, 롤백 어려움
+
+# ✅ 좋은 예
+images:
+  - name: myapp
+    newTag: v1.2.3  # Semantic Versioning
+  # 또는
+  - name: myapp
+    newTag: sha-7f2a1b9  # Git commit SHA
+  # 또는
+  - name: myapp
+    newTag: 2024-12-09-abc123  # 날짜 + 빌드 번호
+```
+
+**이미지 레지스트리 변경**:
+
+```yaml
+images:
+  - name: myapp
+    newName: myregistry.azurecr.io/myapp
+    newTag: v1.2.3
+  # Docker Hub에서 ACR로 마이그레이션
+  - name: nginx
+    newName: myregistry.azurecr.io/nginx
+    newTag: 1.27
+```
+
+### 6. 패치 전략
+
+**Strategic Merge Patch (간단한 변경)**:
+
+```yaml
+# replica-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: myapp
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+```
+
+**JSON 6902 Patch (정밀한 변경)**:
+
+```yaml
+# kustomization.yaml
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: myapp
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: NEW_ENV_VAR
+          value: "new-value"
+      - op: replace
+        path: /spec/replicas
+        value: 5
+```
+
+### 7. 네임스페이스 전략
+
+**네임스페이스 분리**:
+
+```yaml
+# overlays/dev/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    environment: dev
+    istio-injection: enabled
+  annotations:
+    owner: "dev-team@company.com"
+
+# overlays/dev/kustomization.yaml
+resources:
+  - namespace.yaml
+  - ../../base
+
+namespace: dev  # 모든 리소스에 적용
+```
+
+### 8. 검증 및 테스트
+
+**CI/CD 파이프라인 통합**:
+
+```bash
+#!/bin/bash
+# validate-kustomize.sh
+
+set -e
+
+ENVIRONMENTS=("dev" "staging" "prod")
+
+for env in "${ENVIRONMENTS[@]}"; do
+  echo "🔍 Validating $env environment..."
+  
+  # 1. Kustomize 빌드
+  kubectl kustomize "overlays/$env" > "/tmp/$env-manifests.yaml"
+  
+  # 2. YAML 문법 검증
+  yamllint "/tmp/$env-manifests.yaml"
+  
+  # 3. Kubernetes 스키마 검증
+  kubectl apply --dry-run=server -f "/tmp/$env-manifests.yaml"
+  
+  # 4. 정책 검증 (OPA/Kyverno)
+  conftest test "/tmp/$env-manifests.yaml"
+  
+  # 5. 보안 스캔
+  kubesec scan "/tmp/$env-manifests.yaml"
+  
+  echo "✅ $env environment validated successfully"
+done
+```
+
+### 9. 문서화 규칙
+
+**kustomization.yaml 주석**:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# =============================================================================
+# Production Environment Configuration
+# =============================================================================
+# Owner: DevOps Team
+# Contact: devops@company.com
+# Updated: 2024-12-09
+# 
+# Configuration:
+# - Replicas: 5
+# - Resources: High (CPU: 1000m, Memory: 1Gi)
+# - Monitoring: Enabled (Prometheus)
+# - Security: Pod Security Standards (Restricted)
+# - High Availability: PodDisruptionBudget, Anti-Affinity
+# =============================================================================
+
+namespace: prod
+
+resources:
+  - ../../base
+  - hpa.yaml
+  - pdb.yaml
+
+# ... 나머지 설정
+```
+
+### 10. 리소스 명명 규칙
+
+**일관된 네이밍**:
+
+```yaml
+# namePrefix/nameSuffix 활용
+namePrefix: myapp-
+nameSuffix: -v1
+
+# 결과:
+# - Deployment: myapp-deployment-v1
+# - Service: myapp-service-v1
+# - ConfigMap: myapp-config-v1-<hash>
+```
+
+### 11. 버전 관리 전략
+
+**Git 브랜치 전략**:
+
+```bash
+# 환경별 브랜치
+main                    # 프로덕션
+├── develop            # 개발
+├── staging            # 스테이징
+
+# 또는 환경별 디렉토리 (권장)
+overlays/
+├── dev/    (main 브랜치)
+├── staging/ (main 브랜치)
+└── prod/   (main 브랜치)
+```
+
+**GitOps 통합**:
+
+```yaml
+# ArgoCD Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-prod
+spec:
+  source:
+    repoURL: https://github.com/myorg/myapp
+    targetRevision: main
+    path: overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+### 12. 성능 최적화
+
+**빌드 최적화**:
+
+```bash
+# 큰 프로젝트의 경우 부분 빌드
+kubectl kustomize overlays/prod --load-restrictor LoadRestrictionsNone
+
+# 결과 캐싱
+kustomize build overlays/prod > manifests/prod.yaml
+kubectl apply -f manifests/prod.yaml
+```
+
+### 13. 보안 Best Practices
+
+**Pod Security Standards**:
+
+```yaml
+# overlays/prod/pod-security.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+```
+
+**SecurityContext 패치**:
+
+```yaml
+# security-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  template:
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: myapp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
 ```
 
 ## 문제 해결

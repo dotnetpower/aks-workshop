@@ -380,7 +380,7 @@ metadata:
 spec:
   containers:
     - name: nginx
-      image: nginx:1.21
+      image: nginx:1.27
   nodeSelector:
     kubernetes.io/os: linux
 EOF
@@ -395,6 +395,229 @@ EOF
     else
         log_error "✗ NodeSelector 테스트 실패 (phase: $phase)"
         return 1
+    fi
+}
+
+# Best Practices: Security 테스트
+test_best_practices_security() {
+    log_info "========================================="
+    log_info "Best Practices: Security 테스트"
+    log_info "========================================="
+    
+    local namespace="test-bp-security"
+    create_test_namespace $namespace
+    
+    # Pod Security Standards - Restricted Namespace
+    log_info "Pod Security Standards 적용..."
+    kubectl label namespace $namespace \
+        pod-security.kubernetes.io/enforce=restricted \
+        pod-security.kubernetes.io/audit=restricted \
+        pod-security.kubernetes.io/warn=restricted \
+        --overwrite
+    
+    # Restricted Security Context를 가진 Pod 생성
+    log_info "Restricted Security Context Pod 생성..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: nginx
+    image: nginx:1.27
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+      capabilities:
+        drop:
+          - ALL
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: cache
+      mountPath: /var/cache/nginx
+    - name: run
+      mountPath: /var/run
+  volumes:
+  - name: tmp
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
+  - name: run
+    emptyDir: {}
+EOF
+    
+    sleep 15
+    
+    # Pod 상태 확인
+    local phase=$(kubectl get pod secure-pod -n $namespace -o jsonpath='{.status.phase}')
+    
+    if [ "$phase" == "Running" ]; then
+        log_info "✓ Security Best Practices 테스트 성공"
+    else
+        log_warning "⚠ Security Best Practices 테스트: Pod phase=$phase"
+        kubectl describe pod secure-pod -n $namespace
+        return 1
+    fi
+    
+    # Network Policy 테스트
+    log_info "Network Policy 적용..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+EOF
+    
+    log_info "✓ Network Policy 생성 성공"
+}
+
+# Best Practices: Resource Management 테스트
+test_best_practices_resources() {
+    log_info "========================================="
+    log_info "Best Practices: Resource Management 테스트"
+    log_info "========================================="
+    
+    local namespace="test-bp-resources"
+    create_test_namespace $namespace
+    
+    # ResourceQuota 생성
+    log_info "ResourceQuota 생성..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: test-quota
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "5"
+EOF
+    
+    # LimitRange 생성
+    log_info "LimitRange 생성..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: test-limits
+spec:
+  limits:
+  - max:
+      cpu: "2"
+      memory: 4Gi
+    min:
+      cpu: "100m"
+      memory: 128Mi
+    default:
+      cpu: "500m"
+      memory: 512Mi
+    defaultRequest:
+      cpu: "200m"
+      memory: 256Mi
+    type: Container
+EOF
+    
+    # Resource가 적용된 Pod 생성
+    log_info "Resource Limits/Requests가 적용된 Pod 생성..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: resource-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.27
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+EOF
+    
+    sleep 10
+    
+    # Pod 상태 및 리소스 확인
+    local phase=$(kubectl get pod resource-pod -n $namespace -o jsonpath='{.status.phase}')
+    
+    if [ "$phase" == "Running" ]; then
+        log_info "✓ Resource Management 테스트 성공"
+        
+        # 리소스 확인
+        kubectl describe resourcequota test-quota -n $namespace
+        kubectl describe limitrange test-limits -n $namespace
+    else
+        log_error "✗ Resource Management 테스트 실패 (phase: $phase)"
+        return 1
+    fi
+    
+    # PodDisruptionBudget 테스트
+    log_info "PodDisruptionBudget 생성..."
+    kubectl apply -n $namespace -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdb-test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pdb-test
+  template:
+    metadata:
+      labels:
+        app: pdb-test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-test
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: pdb-test
+EOF
+    
+    sleep 10
+    
+    # PDB 확인
+    local allowed=$(kubectl get pdb pdb-test -n $namespace -o jsonpath='{.status.disruptionsAllowed}')
+    
+    if [ -n "$allowed" ]; then
+        log_info "✓ PodDisruptionBudget 생성 성공 (allowed disruptions: $allowed)"
+    else
+        log_warning "⚠ PodDisruptionBudget 상태를 확인할 수 없습니다"
     fi
 }
 
@@ -460,6 +683,8 @@ main() {
     test_module3_probes || ((failed++))
     test_module6_node_selector || ((failed++))
     test_module7_resources || ((failed++))
+    test_best_practices_security || ((failed++))
+    test_best_practices_resources || ((failed++))
     
     # 결과 출력
     log_info "========================================"
