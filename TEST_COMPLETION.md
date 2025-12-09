@@ -11,7 +11,7 @@
 - **클러스터**: aks-workshop
 - **리소스 그룹**: aks-workshop-rg
 - **리전**: Korea Central
-- **Kubernetes 버전**: 1.30.0
+- **Kubernetes 버전**: 1.32.9
 - **노드 수**: 3
 
 ### 테스트 결과

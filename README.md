@@ -2,7 +2,7 @@
 
 [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://dotnetpower.github.io/aks-workshop/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.30-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.32-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![Azure](https://img.shields.io/badge/Azure-AKS-0078D4?logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/ko-kr/services/kubernetes-service/)
 [![Istio](https://img.shields.io/badge/Istio-1.24-466BB0?logo=istio&logoColor=white)](https://istio.io/)
 [![Docusaurus](https://img.shields.io/badge/Docusaurus-3.9.2-3ECC5F?logo=docusaurus&logoColor=white)](https://docusaurus.io/)

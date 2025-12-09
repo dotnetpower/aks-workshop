@@ -95,9 +95,9 @@ kubectl get nodes
 예상 출력:
 ```
 NAME                                STATUS   ROLES   AGE   VERSION
-aks-nodepool1-12345678-vmss000000   Ready    agent   5m    v1.30.0
-aks-nodepool1-12345678-vmss000001   Ready    agent   5m    v1.30.0
-aks-nodepool1-12345678-vmss000002   Ready    agent   5m    v1.30.0
+aks-nodepool1-12345678-vmss000000   Ready    agent   5m    v1.32.9
+aks-nodepool1-12345678-vmss000001   Ready    agent   5m    v1.32.9
+aks-nodepool1-12345678-vmss000002   Ready    agent   5m    v1.32.9
 ```
 
 ## 자동 테스트 실행
