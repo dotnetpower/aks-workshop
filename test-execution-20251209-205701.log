@@ -1,0 +1,81 @@
+[0;32m[INFO][0m ========================================
+[0;32m[INFO][0m AKS Workshop 테스트 시작
+[0;32m[INFO][0m ========================================
+[0;32m[INFO][0m 환경 변수 확인 중...
+[0;32m[INFO][0m 환경 변수 확인 완료: CLUSTER=aks-workshop, RESOURCE_GROUP=aks-workshop-rg
+[0;32m[INFO][0m 클러스터 연결 확인 중...
+[0;32m[INFO][0m 클러스터 연결 확인 완료
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 1: 기본 Deployment 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-basic-deploy
+namespace/test-basic-deploy created
+namespace/test-basic-deploy labeled
+[0;32m[INFO][0m Deployment 생성...
+deployment.apps/test-workload created
+[0;32m[INFO][0m 리소스 대기 중: deployment/test-workload (namespace: test-basic-deploy, timeout: 60s)
+error: timed out waiting for the condition on deployments/test-workload
+[0;32m[INFO][0m ✓ Deployment 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 1: Service 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-service
+namespace/test-service created
+namespace/test-service labeled
+deployment.apps/web-server created
+service/web-service created
+[0;32m[INFO][0m ✓ Service 테스트 성공 (ClusterIP: 10.0.218.140)
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 1: ConfigMap 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-configmap
+namespace/test-configmap created
+namespace/test-configmap labeled
+configmap/test-config created
+pod/test-pod created
+[0;32m[INFO][0m ✓ ConfigMap 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 1: Secret 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-secret
+namespace/test-secret created
+namespace/test-secret labeled
+secret/test-secret created
+pod/test-pod created
+[0;32m[INFO][0m ✓ Secret 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 3: Volume 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-volume
+namespace/test-volume created
+namespace/test-volume labeled
+pod/test-volume-pod created
+[0;32m[INFO][0m ✓ Volume 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 3: Probes 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-probes
+namespace/test-probes created
+namespace/test-probes labeled
+pod/test-probe-pod created
+[0;32m[INFO][0m ✓ Probes 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 6: NodeSelector 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-scheduling
+namespace/test-scheduling created
+namespace/test-scheduling labeled
+pod/test-node-selector-pod created
+[0;32m[INFO][0m ✓ NodeSelector 테스트 성공
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m Module 7: Resource Requests/Limits 테스트
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 생성: test-resources
+namespace/test-resources created
+namespace/test-resources labeled
+pod/test-resource-pod created
+[0;32m[INFO][0m ✓ Resource Requests/Limits 테스트 성공
+[0;32m[INFO][0m ========================================
+[0;32m[INFO][0m 테스트 완료
+[0;32m[INFO][0m ========================================
+[0;32m[INFO][0m ✓ 모든 테스트 통과!

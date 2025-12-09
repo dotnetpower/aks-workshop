@@ -73,12 +73,8 @@ const sidebars: SidebarsConfig = {
         "istio/fault-injection",
         "istio/circuit-breaking",
         "istio/authorization",
+        "advanced/tips",
       ],
-    },
-    {
-      type: "category",
-      label: "고급",
-      items: ["advanced/tips"],
     },
     "cleanup",
   ],

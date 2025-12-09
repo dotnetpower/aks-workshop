@@ -40,7 +40,7 @@ const config: Config = {
       "classic",
       {
         docs: {
-          routeBasePath: "/",
+          routeBasePath: "docs",
           sidebarPath: "./sidebars.ts",
           editUrl:
             "https://github.com/dotnetpower/aks-workshop/tree/main/docs/",
@@ -64,7 +64,6 @@ const config: Config = {
       logo: {
         alt: "AKS Workshop Logo",
         src: "img/logo.svg",
-        href: "/intro",
       },
       items: [
         {
@@ -88,7 +87,7 @@ const config: Config = {
           items: [
             {
               label: "시작하기",
-              to: "/intro",
+              to: "/docs/intro",
             },
           ],
         },

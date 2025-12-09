@@ -1,0 +1,41 @@
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m AKS Workshop 리소스 정리
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 테스트 네임스페이스 정리 중...
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-basic-deploy
+namespace "test-basic-deploy" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-configmap
+namespace "test-configmap" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-probes
+namespace "test-probes" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-resources
+namespace "test-resources" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-scheduling
+namespace "test-scheduling" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-secret
+namespace "test-secret" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-service
+namespace "test-service" deleted
+[0;32m[INFO][0m 네임스페이스 삭제 중: test-volume
+namespace "test-volume" deleted
+[0;32m[INFO][0m ✓ 테스트 네임스페이스 정리 완료
+[0;32m[INFO][0m 모든 테스트 리소스 정리 중...
+[0;32m[INFO][0m scope=demo 라벨이 있는 리소스 정리...
+No resources found
+[0;32m[INFO][0m 테스트 리소스 정리...
+No resources found
+No resources found
+[0;32m[INFO][0m ✓ 모든 테스트 리소스 정리 완료
+[0;32m[INFO][0m 스토리지 리소스 정리 중...
+No resources found
+[0;32m[INFO][0m ✓ 스토리지 리소스 정리 완료
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 정리 상태 확인
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 남아있는 테스트 네임스페이스: 0
+[0;32m[INFO][0m 남아있는 테스트 Pod: 0
+[0;32m[INFO][0m 남아있는 테스트 PVC: 0
+[0;32m[INFO][0m ✓ 모든 테스트 리소스가 정리되었습니다!
+[0;32m[INFO][0m =========================================
+[0;32m[INFO][0m 정리 완료!
+[0;32m[INFO][0m =========================================
