@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# AKS Istio Workshop
+# AKS Workshop
 
-AKS에 Istio service mesh를 구성하고 실습을 포함합니다.
+AKS를 구성하고 실습을 포함합니다.
 
 ## 워크샵 주제
 
@@ -93,7 +93,7 @@ docs/
 ├── scheduling/               # Pod 스케줄링
 ├── autoscaling/              # 오토스케일링
 ├── monitoring/               # 모니터링
-├── hands-on-labs/            # Istio 실습
+├── istio/                     # Istio 실습
 ├── advanced/                 # 고급 팁
 └── cleanup.md                # 리소스 정리
 ```

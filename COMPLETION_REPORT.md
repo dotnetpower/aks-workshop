@@ -9,7 +9,7 @@
 - ✅ Docusaurus TypeScript 템플릿 초기화
 - ✅ 한국어 설정 (ko)
 - ✅ GitHub Pages 배포 설정
-- ✅ 사이트 정보 업데이트 (AKS Istio Workshop)
+- ✅ 사이트 정보 업데이트 (AKS Workshop)
 
 ### ✅ 문서 작성 완료 (총 40개 문서)
 

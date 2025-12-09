@@ -378,4 +378,4 @@ kubectl delete deployment workload-dep
 
 * [고급 Kubernetes 기능](../advanced-kubernetes/intro)
 * [모니터링](../monitoring/overview)
-* [Istio 서비스 메시](../hands-on-labs/request-routing)
+* [Istio 서비스 메시](../istio/request-routing.md)
