@@ -1,5 +1,172 @@
-# akstrain
-AKS 에 Istio service mesh 를 구성하고 실습을 포함합니다.
+# AKS Workshop
+
+AKS에 Istio Service Mesh를 구성하고 Kubernetes 실습을 포함하는 워크샵입니다.
+
+## 📚 문서 사이트
+
+워크샵 문서는 [GitHub Pages](https://dotnetpower.github.io/aks-workshop/)에서 확인할 수 있습니다.
+
+## 🚀 워크샵 주제
+
+### Kubernetes 기초
+* Deployment, Service, ConfigMap, Secret
+* Blue-Green 배포 및 Canary 배포
+
+### 고급 Kubernetes
+* Volumes와 스토리지 관리
+* Ingress Controller
+* Health Probes
+* Init Container 및 Multi-Container Pods
+* Jobs와 CronJobs
+
+### Pod 스케줄링
+* Node Affinity와 Anti-Affinity
+* Taint와 Toleration
+* Topology Spread Constraints
+* StatefulSet
+
+### 오토스케일링
+* Resource Requests/Limits
+* Horizontal Pod Autoscaler (HPA)
+* KEDA (Event-driven Autoscaling)
+  * RabbitMQ 기반 스케일링
+  * Cron 기반 스케일링
+
+### Service Mesh (Istio)
+* Traffic Management (Request Routing, Traffic Shifting)
+* Fault Injection
+* Circuit Breaking
+* Authorization
+* Observability (Prometheus, Grafana, Jaeger, Kiali)
+
+## 📖 빠른 시작
+
+### 1. 사전 준비
+
+```bash
+# Azure CLI 설치
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# kubectl 설치
+sudo az aks install-cli
+
+# Helm 설치
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
+### 2. 클러스터 생성
+
+```bash
+# 환경 변수 설정
+source ./istio-env.sh
+
+# 리소스 그룹 및 클러스터 생성
+az group create --location $LOCATION --resource-group $RESOURCE_GROUP
+
+az aks create \
+  --resource-group $RESOURCE_GROUP \
+  --name $CLUSTER \
+  --enable-asm \
+  --network-plugin azure \
+  --node-count 3 \
+  --kubernetes-version $K8S_VERSION \
+  --generate-ssh-keys
+
+# 자격 증명 가져오기
+az aks get-credentials --resource-group $RESOURCE_GROUP --name $CLUSTER
+```
+
+### 3. 실습 시작
+
+[워크샵 문서](https://dotnetpower.github.io/aks-workshop/)를 따라 실습을 진행하세요.
+
+## 🧪 테스트
+
+### 전체 실습 테스트
+
+```bash
+# 환경 변수 설정
+source ./istio-env.sh
+
+# 테스트 실행
+./test-workshop.sh
+```
+
+### 리소스 정리
+
+```bash
+# 테스트 리소스만 정리
+./cleanup-workshop.sh --test
+
+# 모든 리소스 정리
+./cleanup-workshop.sh --all
+
+# 클러스터 완전 삭제
+DELETE_CLUSTER=true ./cleanup-workshop.sh --delete-cluster
+```
+
+## 📁 프로젝트 구조
+
+```
+.
+├── docs/                           # Docusaurus 문서
+│   ├── docs/
+│   │   ├── setup/                  # 환경 설정
+│   │   ├── kubernetes-basics/       # Kubernetes 기초
+│   │   ├── advanced-kubernetes/     # 고급 Kubernetes
+│   │   ├── scheduling/              # Pod 스케줄링
+│   │   ├── autoscaling/             # 오토스케일링
+│   │   ├── monitoring/              # 모니터링
+│   │   ├── hands-on-labs/           # Istio 실습
+│   │   └── advanced/                # 고급 팁
+│   └── static/                      # 이미지 및 정적 파일
+├── protected/                       # 참고 스크립트
+│   ├── Module_1/                    # Kubernetes 기초 스크립트
+│   ├── Module_3/                    # 고급 Kubernetes 스크립트
+│   ├── Module_6/                    # 스케줄링 스크립트
+│   └── Module_7/                    # 오토스케일링 스크립트
+├── images/                          # 문서 이미지
+├── test-workshop.sh                 # 테스트 스크립트
+├── cleanup-workshop.sh              # 정리 스크립트
+└── istio-env.sh                     # 환경 변수 설정
+```
+
+## 🛠️ 로컬에서 문서 실행
+
+```bash
+cd docs
+npm install
+npm start
+```
+
+브라우저에서 `http://localhost:3000/aks-workshop/`로 접속합니다.
+
+## 📝 문서 빌드
+
+```bash
+cd docs
+npm run build
+npm run serve
+```
+
+## 🤝 기여
+
+이슈나 PR은 언제나 환영합니다!
+
+### 문서 작성 가이드라인
+
+* 각 문서는 한국어로 작성합니다
+* 실습 예제와 YAML 파일을 포함합니다
+* 단계별 명령어와 예상 결과를 제공합니다
+* 실습 과제 섹션을 추가합니다
+
+## 📄 라이선스
+
+MIT License
+
+## 📞 문의
+
+문제가 발생하면 [GitHub Issues](https://github.com/dotnetpower/aks-workshop/issues)에 등록해주세요.
 
 ## 워크샵 주제
 * 쿠버네티스

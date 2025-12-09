@@ -1,0 +1,82 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docusaurus: Start",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/docs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "serverReadyAction": {
+        "pattern": "Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    },
+    {
+      "name": "Docusaurus: Build",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/docs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "build"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Docusaurus: Serve (Production)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/docs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "serve"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "serverReadyAction": {
+        "pattern": "Serving.+at.+(https?://.+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    },
+    {
+      "name": "Test Workshop",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/test-workshop.sh",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "CLUSTER": "${env:CLUSTER}",
+        "RESOURCE_GROUP": "${env:RESOURCE_GROUP}",
+        "LOCATION": "${env:LOCATION}",
+        "K8S_VERSION": "${env:K8S_VERSION}"
+      }
+    },
+    {
+      "name": "Cleanup Workshop",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/cleanup-workshop.sh",
+      "args": ["--test"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Build & Serve",
+      "configurations": ["Docusaurus: Build"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "docusaurus",
+        "order": 1
+      }
+    }
+  ]
+}
