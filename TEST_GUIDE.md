@@ -116,22 +116,22 @@ source ./env.sh
 
 `test-workshop.sh`는 다음 모듈을 순차적으로 테스트합니다:
 
-1. **Module 1: Kubernetes 기초**
+1. **Kubernetes 기초**
    - Basic Deployment
    - Service (ClusterIP, NodePort, LoadBalancer)
    - ConfigMap
    - Secret
 
-2. **Module 3: 고급 Kubernetes**
+2. **고급 Kubernetes**
    - Volumes
    - Probes (Liveness, Readiness)
 
-3. **Module 6: Pod 스케줄링**
+3. **Pod 스케줄링**
    - NodeSelector
    - Affinity/Anti-Affinity
    - Taints & Tolerations
 
-4. **Module 7: 오토스케일링**
+4. **오토스케일링**
    - Resource Requests/Limits
    - Horizontal Pod Autoscaler
 
@@ -147,7 +147,7 @@ source ./env.sh
 [INFO] 클러스터 연결 확인 완료
 
 [INFO] =========================================
-[INFO] Module 1: 기본 Deployment 테스트
+[INFO] 기본 Deployment 테스트
 [INFO] =========================================
 [INFO] 테스트 네임스페이스 생성: test-basic-deploy
 [INFO] Deployment 생성...
@@ -163,7 +163,7 @@ test-workload   3/3     3            3           30s
 
 자동 테스트 외에 각 모듈을 수동으로 테스트할 수 있습니다.
 
-### Module 1: Kubernetes 기초
+### Kubernetes 기초
 
 #### 1.1 Deployment 테스트
 
@@ -223,7 +223,7 @@ kubectl create secret generic test-secret --from-literal=password=mypassword -n 
 kubectl get secret test-secret -n test-deploy
 ```
 
-### Module 3: 고급 Kubernetes
+### 고급 Kubernetes
 
 #### 3.1 Volume 테스트
 
@@ -281,9 +281,9 @@ kubectl get pod test-probes -n test-deploy
 kubectl describe pod test-probes -n test-deploy | grep -A 10 Liveness
 ```
 
-### Module 6: Pod 스케줄링
+### Pod 스케줄링
 
-#### 6.1 NodeSelector 테스트
+#### 5.1 NodeSelector 테스트
 
 ```bash
 # 노드에 레이블 추가
@@ -307,7 +307,7 @@ EOF
 kubectl get pod test-node-selector -n test-deploy -o wide
 ```
 
-### Module 7: 오토스케일링
+### 오토스케일링
 
 #### 7.1 HPA 테스트
 
@@ -353,22 +353,22 @@ kubectl get hpa -n test-deploy
 
 각 모듈의 테스트 결과를 다음 항목으로 검증합니다:
 
-- [ ] **Module 1: Kubernetes 기초**
+- [ ] **Kubernetes 기초**
   - [ ] Deployment가 READY 상태 (3/3)
   - [ ] Service가 ClusterIP 할당됨
   - [ ] ConfigMap이 생성되고 값 확인 가능
   - [ ] Secret이 생성되고 base64 인코딩됨
 
-- [ ] **Module 3: 고급 Kubernetes**
+- [ ] **고급 Kubernetes**
   - [ ] Volume이 Pod에 마운트됨
   - [ ] Liveness Probe가 정상 동작
   - [ ] Readiness Probe가 정상 동작
 
-- [ ] **Module 6: Pod 스케줄링**
+- [ ] **Pod 스케줄링**
   - [ ] NodeSelector로 특정 노드에 스케줄링됨
   - [ ] Affinity 규칙이 적용됨
 
-- [ ] **Module 7: 오토스케일링**
+- [ ] **오토스케일링**
   - [ ] Resource Requests/Limits 설정됨
   - [ ] HPA가 생성되고 메트릭 수집 중
 

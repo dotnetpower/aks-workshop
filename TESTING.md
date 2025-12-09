@@ -48,7 +48,7 @@ kubectl get namespaces
 [INFO] 환경 변수 확인 완료: CLUSTER=istio-addon-lab, RESOURCE_GROUP=gmarket-istio-lab
 [INFO] 클러스터 연결 확인 완료
 [INFO] =========================================
-[INFO] Module 1: 기본 Deployment 테스트
+[INFO] 기본 Deployment 테스트
 [INFO] =========================================
 [INFO] 테스트 네임스페이스 생성: test-basic-deploy
 [INFO] Deployment 생성...
@@ -62,7 +62,7 @@ kubectl get namespaces
 
 ## 모듈별 수동 테스트
 
-### Module 1: Kubernetes 기초
+### Kubernetes 기초
 
 #### 1. Basic Deployment
 
@@ -189,7 +189,7 @@ kubectl logs config-test-pod -n test-config | grep APP_NAME
 kubectl delete namespace test-config
 ```
 
-### Module 3: 고급 Kubernetes
+### 고급 Kubernetes
 
 #### 1. Volumes
 
@@ -266,7 +266,7 @@ kubectl describe pod probe-test -n test-probes | grep -A 10 "Liveness\|Readiness
 kubectl delete namespace test-probes
 ```
 
-### Module 6: Pod 스케줄링
+### Pod 스케줄링
 
 #### 1. Node Selector
 
@@ -293,7 +293,7 @@ kubectl get pod node-selector-test -n test-scheduling -o wide
 kubectl delete namespace test-scheduling
 ```
 
-### Module 7: 리소스 관리
+### 리소스 관리
 
 #### 1. Resource Requests/Limits
 

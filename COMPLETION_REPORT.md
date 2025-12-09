@@ -71,10 +71,10 @@
 **파일**: `test-workshop.sh`
 
 **기능**:
-- Module 1: Deployment, Service, ConfigMap, Secret 테스트
-- Module 3: Volume, Probes 테스트
-- Module 6: NodeSelector, Scheduling 테스트
-- Module 7: Resource Requests/Limits 테스트
+- Kubernetes 기초: Deployment, Service, ConfigMap, Secret 테스트
+- 고급 Kubernetes: Volume, Probes 테스트
+- Pod 스케줄링: NodeSelector, Scheduling 테스트
+- 오토스케일링: Resource Requests/Limits 테스트
 - 자동화된 검증 및 결과 리포팅
 
 **특징**:

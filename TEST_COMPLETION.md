@@ -16,16 +16,16 @@
 
 ### 테스트 결과
 
-| 모듈 | 테스트 항목 | 상태 | 실행 시간 | 비고 |
-|------|------------|------|----------|------|
-| Module 1 | Deployment | ✅ 성공 | ~10초 | 3 Pods 정상 실행 |
-| Module 1 | Service | ✅ 성공 | ~8초 | ClusterIP 할당 정상 |
-| Module 1 | ConfigMap | ✅ 성공 | ~5초 | 환경변수 주입 확인 |
-| Module 1 | Secret | ✅ 성공 | ~5초 | 볼륨 마운트 확인 |
-| Module 3 | Volume | ✅ 성공 | ~5초 | emptyDir 정상 |
-| Module 3 | Probes | ✅ 성공 | ~6초 | Health Check 정상 |
-| Module 6 | NodeSelector | ✅ 성공 | ~5초 | 스케줄링 정상 |
-| Module 7 | Resource Limits | ✅ 성공 | ~5초 | CPU/Memory 제한 적용 |
+| 카테고리 | 테스트 항목 | 상태 | 실행 시간 | 비고 |
+|----------|------------|------|----------|------|
+| Kubernetes 기초 | Deployment | ✅ 성공 | ~10초 | 3 Pods 정상 실행 |
+| Kubernetes 기초 | Service | ✅ 성공 | ~8초 | ClusterIP 할당 정상 |
+| Kubernetes 기초 | ConfigMap | ✅ 성공 | ~5초 | 환경변수 주입 확인 |
+| Kubernetes 기초 | Secret | ✅ 성공 | ~5초 | 볼륨 마운트 확인 |
+| 고급 Kubernetes | Volume | ✅ 성공 | ~5초 | emptyDir 정상 |
+| 고급 Kubernetes | Probes | ✅ 성공 | ~6초 | Health Check 정상 |
+| Pod 스케줄링 | NodeSelector | ✅ 성공 | ~5초 | 스케줄링 정상 |
+| 오토스케일링 | Resource Limits | ✅ 성공 | ~5초 | CPU/Memory 제한 적용 |
 
 **총 테스트 시간**: ~49초  
 **전체 성공률**: 8/8 (100%) ✅

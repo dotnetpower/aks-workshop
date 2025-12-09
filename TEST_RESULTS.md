@@ -11,16 +11,16 @@
 
 ### ✅ 테스트 결과 요약
 
-| 모듈 | 테스트 항목 | 상태 | 비고 |
-|------|------------|------|------|
-| Module 1 | 기본 Deployment | ✅ 성공 | 3개 Pod 정상 실행 |
-| Module 1 | Service (ClusterIP) | ✅ 성공 | ClusterIP: 10.0.218.140 |
-| Module 1 | ConfigMap | ✅ 성공 | 환경변수 주입 확인 |
-| Module 1 | Secret | ✅ 성공 | 시크릿 마운트 확인 |
-| Module 3 | Volume (emptyDir) | ✅ 성공 | 볼륨 마운트 정상 |
-| Module 3 | Health Probes | ✅ 성공 | Liveness/Readiness 정상 |
-| Module 6 | NodeSelector | ✅ 성공 | 노드 선택 정상 |
-| Module 7 | Resource Limits | ✅ 성공 | CPU/Memory 제한 적용 |
+| 카테고리 | 테스트 항목 | 상태 | 비고 |
+|----------|------------|------|------|
+| Kubernetes 기초 | 기본 Deployment | ✅ 성공 | 3개 Pod 정상 실행 |
+| Kubernetes 기초 | Service (ClusterIP) | ✅ 성공 | ClusterIP: 10.0.218.140 |
+| Kubernetes 기초 | ConfigMap | ✅ 성공 | 환경변수 주입 확인 |
+| Kubernetes 기초 | Secret | ✅ 성공 | 시크릿 마운트 확인 |
+| 고급 Kubernetes | Volume (emptyDir) | ✅ 성공 | 볼륨 마운트 정상 |
+| 고급 Kubernetes | Health Probes | ✅ 성공 | Liveness/Readiness 정상 |
+| Pod 스케줄링 | NodeSelector | ✅ 성공 | 노드 선택 정상 |
+| 오토스케일링 | Resource Limits | ✅ 성공 | CPU/Memory 제한 적용 |
 
 **전체 성공률**: 8/8 (100%)
 
@@ -28,7 +28,7 @@
 
 ## 🧪 상세 테스트 결과
 
-### 1. Module 1: Kubernetes 기초
+### 1. Kubernetes 기초
 
 #### 1.1 기본 Deployment 테스트
 
@@ -131,7 +131,7 @@ pod/test-pod   1/1     Running   0          87s
 
 ---
 
-### 2. Module 3: 고급 Kubernetes
+### 2. 고급 Kubernetes
 
 #### 2.1 Volume 테스트
 
@@ -213,7 +213,7 @@ Conditions:
 
 ---
 
-### 3. Module 6: Pod 스케줄링
+### 3. Pod 스케줄링
 
 #### 3.1 NodeSelector 테스트
 
@@ -242,7 +242,7 @@ test-node-selector-pod   1/1     Running   0          52s
 
 ---
 
-### 4. Module 7: 오토스케일링
+### 4. 오토스케일링
 
 #### 4.1 Resource Requests/Limits 테스트
 

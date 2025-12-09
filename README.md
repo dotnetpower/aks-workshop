@@ -121,10 +121,10 @@ source ./env.sh
 
 ### 테스트 범위
 
-- ✅ **Module 1**: Kubernetes 기초 (Deployment, Service, ConfigMap, Secret)
-- ✅ **Module 3**: 고급 Kubernetes (Volumes, Probes)
-- ✅ **Module 6**: Pod 스케줄링 (NodeSelector, Affinity, Taints)
-- ✅ **Module 7**: 오토스케일링 (Resource Limits, HPA)
+- ✅ Kubernetes 기초 (Deployment, Service, ConfigMap, Secret)
+- ✅ 고급 Kubernetes (Volumes, Probes)
+- ✅ Pod 스케줄링 (NodeSelector, Affinity, Taints)
+- ✅ 오토스케일링 (Resource Limits, HPA)
 
 ### 리소스 정리
 
