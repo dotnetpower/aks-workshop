@@ -6,6 +6,10 @@
 [![Azure](https://img.shields.io/badge/Azure-AKS-0078D4?logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/ko-kr/services/kubernetes-service/)
 [![Istio](https://img.shields.io/badge/Istio-1.24-466BB0?logo=istio&logoColor=white)](https://istio.io/)
 [![Docusaurus](https://img.shields.io/badge/Docusaurus-3.9.2-3ECC5F?logo=docusaurus&logoColor=white)](https://docusaurus.io/)
+[![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-E6522C?logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-Dashboards-F46800?logo=grafana&logoColor=white)](https://grafana.com/)
+[![Jaeger](https://img.shields.io/badge/Jaeger-Tracing-66CFE8?logo=jaeger&logoColor=white)](https://www.jaegertracing.io/)
+[![Kiali](https://img.shields.io/badge/Kiali-Service_Mesh-1C4E8E?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyIDJMMiAyMmgxMGwxMC0yMEgxMnoiLz48L3N2Zz4=&logoColor=white)](https://kiali.io/)
 
 Azure Kubernetes Service(AKS)와 Istio Service Mesh를 활용한 실전 Kubernetes 워크샵입니다.
 
