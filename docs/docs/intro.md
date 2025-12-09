@@ -67,43 +67,6 @@ Azure Kubernetes Service(AKS)를 처음부터 구성하고, Kubernetes의 핵심
 3. **[Bookinfo 배포](./setup/bookinfo)** - 샘플 애플리케이션 배포
 4. **실습 진행** - 각 카테고리별 실습 문서 참고
 
-## 💻 개발 환경 설정
-
-### VS Code 디버깅
-
-프로젝트 루트의 `.vscode/launch.json`에서 다음 작업을 실행할 수 있습니다:
-
-- **Docusaurus: Start** - 개발 서버 시작 (F5)
-- **Docusaurus: Build** - 프로덕션 빌드
-- **Docusaurus: Serve** - 빌드된 사이트 미리보기
-- **Test Workshop** - 워크샵 테스트 스크립트 실행
-- **Cleanup Workshop** - 리소스 정리
-
-### 로컬 문서 실행
-
-```bash
-cd docs
-npm install
-npm start
-```
-
-브라우저에서 `http://localhost:3000/aks-workshop/` 접속
-
-## 📚 문서 구조
-
-```
-docs/
-├── setup/                    # 환경 설정
-├── kubernetes-basics/        # Kubernetes 기초
-├── advanced-kubernetes/      # 고급 Kubernetes
-├── scheduling/               # Pod 스케줄링
-├── autoscaling/              # 오토스케일링
-├── monitoring/               # 모니터링
-├── istio/                     # Istio 실습
-├── advanced/                 # 고급 팁
-└── cleanup.md                # 리소스 정리
-```
-
 ## 🧪 테스트 및 검증
 
 ### 자동 테스트
@@ -137,6 +100,38 @@ source ./istio-env.sh
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## 📐 워크샵 아키텍처
+
+이 워크샵에서 다루는 주요 개념들의 관계를 시각화한 다이어그램입니다:
+
+```mermaid
+graph TD
+    A[AKS 클러스터 생성] --> B[Kubernetes 기초]
+    B --> C[Pod & Deployment]
+    B --> D[Service]
+    B --> E[ConfigMap & Secret]
+    
+    C --> F[고급 Kubernetes]
+    F --> G[Volume & PVC]
+    F --> H[Probes]
+    F --> I[Multi-Container]
+    
+    D --> J[Istio Service Mesh]
+    J --> K[Traffic Management]
+    K --> L[Request Routing]
+    K --> M[Fault Injection]
+    K --> N[Circuit Breaking]
+    
+    E --> O[스케줄링 & 오토스케일링]
+    O --> P[Node Affinity]
+    O --> Q[HPA/KEDA]
+    
+    style A fill:#0078d4,stroke:#fff,stroke-width:2px,color:#fff
+    style J fill:#466bb0,stroke:#fff,stroke-width:2px,color:#fff
+    style B fill:#00a1f1,stroke:#fff,stroke-width:2px,color:#fff
+    style F fill:#00a1f1,stroke:#fff,stroke-width:2px,color:#fff
+```
 
 ## 📄 라이선스
 

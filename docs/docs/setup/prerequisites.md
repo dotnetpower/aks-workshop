@@ -34,7 +34,7 @@ sudo apt update
 sudo apt install code
 ```
 
-## SSH Server 설정
+## SSH Server 설정(옵션)
 
 윈도우 사용자가 vscode remote를 이용해서 작업하기 위한 환경입니다.
 

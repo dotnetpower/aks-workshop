@@ -16,6 +16,8 @@ kubectl port-forward -n aks-istio-system svc/prometheus 9090:9090 &
 
 브라우저에서 `http://localhost:9090`으로 접속합니다.
 
+![Prometheus UI](/images/image-prometheus.png)
+
 ### Prometheus 쿼리 예제
 
 * productpage 서비스에 대한 요청 수:
@@ -51,6 +53,8 @@ kubectl port-forward -n aks-istio-system svc/grafana 3000:3000 &
 1. Dashboard → Browse → istio 메뉴로 이동
 2. Istio 관련 대시보드 확인
 
+![Grafana Dashboard](/images/image-grafana.png)
+
 ## Jaeger 설치 (분산 추적)
 
 ```bash
@@ -65,6 +69,8 @@ kubectl port-forward -n aks-istio-system $JAEGER_POD 16686:16686 &
 
 브라우저에서 `http://localhost:16686`으로 접속합니다.
 
+![Jaeger UI](/images/image-jaeger.png)
+
 ### DAG (Directed Acyclic Graph) 확인
 
 1. Search 메뉴 선택
@@ -73,6 +79,8 @@ kubectl port-forward -n aks-istio-system $JAEGER_POD 16686:16686 &
 4. 결과 중 하나를 클릭
 5. System Architecture 메뉴로 이동
 6. DAG 클릭하여 서비스 간 의존성 확인
+
+![Jaeger DAG](/images/image-jaeger-dag.png)
 
 ## Kiali 설치
 
@@ -107,6 +115,8 @@ kubectl port-forward svc/kiali 20001:20001 -n aks-istio-system &
 
 VS Code remote 환경이라면 하단 Ports 탭에서 20001 포트 추가 후 `http://localhost:20001`로 접속 가능합니다.
 
+![Kiali UI](/images/image-kiali.png)
+
 ### 트래픽 생성 및 Kiali에서 확인
 
 ```bash
@@ -118,6 +128,10 @@ let i=0; while :; do let i++; curl -o /dev/null -s -w "Request: ${i}, Response: 
 ```
 
 Kiali의 Graph 메뉴에서 서비스 간 트래픽 흐름을 시각적으로 확인할 수 있습니다.
+
+![Kiali Graph](/images/image-kiali-graph.png)
+
+![Kiali Graph Detail](/images/image-kiali-graph2.png)
 
 ## ClusterInfo (선택 사항)
 
