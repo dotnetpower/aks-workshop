@@ -163,18 +163,67 @@ az aks nodepool upgrade \
 
 ### 1. 네트워크 플러그인 선택
 
-**Azure CNI (권장 - 프로덕션)**:
+**Azure CNI Overlay (권장 - 프로덕션)**:
+
+Azure CNI Overlay는 기존 Azure CNI의 IP 주소 소비 문제를 해결하면서도 성능과 보안을 유지하는 최신 네트워크 플러그인입니다.
+
+```bash
+# Azure CNI Overlay 클러스터 생성
+az aks create \
+  --resource-group $RESOURCE_GROUP \
+  --name $CLUSTER \
+  --location $LOCATION \
+  --network-plugin azure \
+  --network-plugin-mode overlay \
+  --pod-cidr 192.168.0.0/16 \
+  --network-policy azure \
+  --enable-managed-identity
+```
+
+**장점**:
+- ✅ VNet IP 주소 절약 (Pod는 private CIDR 사용)
+- ✅ Azure CNI의 모든 기능 지원 (네트워크 정책, Windows 노드 등)
+- ✅ 높은 확장성 (노드당 최대 250개 Pod)
+- ✅ Azure 네트워크 정책 및 Calico 지원
+- ✅ Virtual Node와 호환
+- ✅ VNet 피어링을 통한 직접 통신 가능
+
+**단점**:
+- ❌ 일부 레거시 Azure 서비스와 직접 통신 제한
+- ❌ Pod IP가 VNet IP가 아니므로 외부 방화벽 규칙 설정 시 추가 고려 필요
+
+**비교표**:
+
+| 기능 | Azure CNI | Azure CNI Overlay | Kubenet |
+|------|-----------|-------------------|----------|
+| VNet IP 소비 | ❌ 많음 | ✅ 적음 | ✅ 적음 |
+| 네트워크 정책 | ✅ Azure/Calico | ✅ Azure/Calico | ⚠️ Calico만 |
+| Windows 노드 | ✅ 지원 | ✅ 지원 | ❌ 미지원 |
+| Virtual Node | ✅ 지원 | ✅ 지원 | ❌ 미지원 |
+| 확장성 (Pod/노드) | ⚠️ 제한적 | ✅ 최대 250 | ✅ 최대 250 |
+| 성능 | ✅ 최고 | ✅ 높음 | ⚠️ 중간 |
+| VNet 피어링 통신 | ✅ 직접 | ✅ 직접 | ❌ NAT 필요 |
+
+**권장 사용 시나리오**:
+- 프로덕션 환경의 대규모 클러스터
+- VNet IP 주소 공간이 제한적인 환경
+- Azure 네트워크 정책이 필요한 환경
+- Windows 노드 또는 Virtual Node 사용 환경
+
+**Azure CNI (기존 방식)**:
 
 - ✅ 각 Pod가 VNet IP를 받음
 - ✅ Azure 네트워크 정책 지원
 - ✅ Virtual Node 지원
 - ❌ IP 주소 소비가 큼
+- ❌ 대규모 클러스터에서 IP 고갈 위험
 
 **Kubenet (개발/테스트)**:
 
 - ✅ IP 주소 절약
 - ❌ 추가 라우팅 필요
 - ❌ Virtual Node 미지원
+- ❌ Windows 노드 미지원
 
 ### 2. Network Policy
 
@@ -214,9 +263,79 @@ spec:
       port: 8080
 ```
 
-### 3. Ingress 및 Load Balancer
+### 3. Ingress 컨트롤러 선택
 
-**Application Gateway Ingress Controller (AGIC)**:
+AKS에서 사용할 수 있는 주요 Ingress 컨트롤러를 비교하고 상황에 맞는 선택 가이드를 제공합니다.
+
+#### Nginx Ingress Controller (권장 - 범용)
+
+**설치**:
+
+```bash
+# Helm으로 Nginx Ingress Controller 설치
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.replicaCount=2 \
+  --set controller.nodeSelector."kubernetes\.io/os"=linux \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz \
+  --set controller.service.externalTrafficPolicy=Local
+```
+
+**장점**:
+- ✅ 오픈소스, 커뮤니티 지원 우수
+- ✅ 경량, 빠른 성능
+- ✅ 다양한 annotation 및 기능 지원
+- ✅ 비용 효율적 (Azure Load Balancer만 사용)
+- ✅ 세밀한 트래픽 제어 (rate limiting, authentication 등)
+- ✅ WebSocket, gRPC 완벽 지원
+- ✅ Canary 배포, A/B 테스팅 용이
+- ✅ 다른 클라우드 환경으로 이식 가능
+
+**단점**:
+- ❌ WAF 기능 없음 (별도 솔루션 필요)
+- ❌ Azure 네이티브 통합 부족
+- ❌ SSL 인증서 관리를 직접 해야 함
+- ❌ Azure Portal에서 관리 불가
+
+**사용 예시**:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - myapp.example.com
+    secretName: myapp-tls
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp
+            port:
+              number: 80
+```
+
+#### Application Gateway Ingress Controller (AGIC)
+
+Azure Application Gateway를 Kubernetes Ingress 컨트롤러로 사용하는 Azure 네이티브 솔루션입니다.
+
+**설치**:
 
 ```bash
 # AGIC 애드온 활성화
@@ -227,6 +346,314 @@ az aks enable-addons \
   --appgw-name myApplicationGateway \
   --appgw-subnet-cidr "10.2.0.0/16"
 ```
+
+**장점**:
+- ✅ Azure 네이티브 통합 (Portal, Monitor, Security Center)
+- ✅ WAF (Web Application Firewall) 기본 제공
+- ✅ SSL 오프로딩 성능 우수
+- ✅ Azure Key Vault 통합 (인증서 관리)
+- ✅ Azure Private Link 지원
+- ✅ Auto-scaling (트래픽에 따라 자동 확장)
+- ✅ Zone-redundant (고가용성)
+- ✅ End-to-end SSL 지원
+
+**단점**:
+- ❌ 비용이 높음 (Application Gateway 별도 과금)
+- ❌ 설정 복잡도 높음
+- ❌ Nginx 대비 기능 제한적
+- ❌ 배포 시간 느림 (수분 소요)
+- ❌ Annotation 지원 제한적
+- ❌ 멀티 클러스터 지원 복잡
+
+**사용 예시**:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/waf-policy-for-path: "/subscriptions/.../myWAFPolicy"
+    appgw.ingress.kubernetes.io/backend-protocol: "https"
+spec:
+  tls:
+  - secretName: myapp-tls
+    hosts:
+    - myapp.example.com
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp
+            port:
+              number: 443
+```
+
+#### 비교표
+
+| 기준 | Nginx Ingress | Application Gateway (AGIC) | Application Gateway for Containers (AGC) |
+|------|---------------|----------------------------|------------------------------------------|
+| **비용** | ✅ 낮음 (LB만) | ❌ 높음 (Gateway + LB) | ⚠️ 중간 (사용량 기반) |
+| **성능** | ✅ 빠름 | ⚠️ 중간 (설정에 따라) | ✅ 빠름 (최신 아키텍처) |
+| **WAF** | ❌ 없음 | ✅ 기본 제공 | ✅ 기본 제공 (WAF v2) |
+| **Azure 통합** | ❌ 제한적 | ✅ 완벽 통합 | ✅ 완벽 통합 |
+| **설정 복잡도** | ✅ 간단 | ❌ 복잡 | ✅ 간단 (Kubernetes 네이티브) |
+| **기능 다양성** | ✅ 풍부 | ⚠️ 제한적 | ✅ 풍부 |
+| **배포 속도** | ✅ 빠름 (초) | ❌ 느림 (분) | ✅ 빠름 (초~분) |
+| **멀티 클라우드** | ✅ 가능 | ❌ Azure 전용 | ❌ Azure 전용 |
+| **커뮤니티** | ✅ 활발 | ⚠️ 제한적 | ⚠️ 성장 중 |
+| **Canary 배포** | ✅ 쉬움 | ⚠️ 복잡 | ✅ 쉬움 |
+| **프로토콜 지원** | HTTP/HTTPS/gRPC | HTTP/HTTPS | HTTP/HTTPS/gRPC/TCP/TLS |
+| **자동 스케일링** | Kubernetes HPA | Gateway 수준 | ✅ 자동 (트래픽 기반) |
+
+#### Application Gateway for Containers (AGC) - 권장 (최신)
+
+AGC는 Azure의 최신 관리형 Ingress 솔루션으로, AGIC의 단점을 개선하고 Kubernetes 네이티브한 경험을 제공합니다.
+
+**특징**:
+- ✅ Kubernetes Gateway API 표준 준수
+- ✅ 빠른 배포 속도 (초~분 단위)
+- ✅ 자동 스케일링 (트래픽 기반)
+- ✅ WAF v2 통합
+- ✅ gRPC, WebSocket, HTTP/2 완벽 지원
+- ✅ TCP/TLS 프로토콜 지원
+- ✅ 다중 클러스터 지원
+- ✅ Azure Monitor 네이티브 통합
+
+**설치** (ALB Controller):
+
+```bash
+# 1. ALB Controller Identity 생성
+az identity create \
+  --resource-group $RESOURCE_GROUP \
+  --name azure-alb-identity
+
+IDENTITY_RESOURCE_ID=$(az identity show \
+  --resource-group $RESOURCE_GROUP \
+  --name azure-alb-identity \
+  --query id \
+  --output tsv)
+
+# 2. Kubernetes 네임스페이스 생성
+kubectl create namespace alb-infra
+
+# 3. ALB Controller 설치
+az aks approuting enable \
+  --resource-group $RESOURCE_GROUP \
+  --name $CLUSTER
+
+# 또는 Helm으로 설치
+helm install alb-controller oci://mcr.microsoft.com/application-lb/charts/alb-controller \
+  --namespace alb-infra \
+  --set albController.namespace=alb-infra \
+  --set albController.podIdentity.identityResourceID=$IDENTITY_RESOURCE_ID
+```
+
+**ApplicationLoadBalancer 리소스 생성**:
+
+```yaml
+# application-lb.yaml
+apiVersion: alb.networking.azure.io/v1
+kind: ApplicationLoadBalancer
+metadata:
+  name: alb-demo
+  namespace: alb-infra
+spec:
+  associations:
+  - $SUBNET_ID  # AGC가 사용할 서브넷 ID
+```
+
+```bash
+# 서브넷 ID 가져오기
+SUBNET_ID=$(az network vnet subnet show \
+  --resource-group $RESOURCE_GROUP \
+  --vnet-name myVNet \
+  --name alb-subnet \
+  --query id \
+  --output tsv)
+
+# ApplicationLoadBalancer 배포
+kubectl apply -f application-lb.yaml
+```
+
+**Gateway API 사용**:
+
+```yaml
+# gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: myapp-gateway
+  namespace: default
+  annotations:
+    alb.networking.azure.io/alb-id: alb-demo
+spec:
+  gatewayClassName: azure-alb-external
+  listeners:
+  - name: http-listener
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+  - name: https-listener
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: myapp-tls
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+# httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: myapp-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: myapp-gateway
+  hostnames:
+  - "myapp.example.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: myapp
+      port: 80
+```
+
+**고급 기능** - 트래픽 분할 (Canary):
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: myapp-canary
+spec:
+  parentRefs:
+  - name: myapp-gateway
+  hostnames:
+  - "myapp.example.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: myapp-v1
+      port: 80
+      weight: 90
+    - name: myapp-v2
+      port: 80
+      weight: 10
+```
+
+**gRPC 지원**:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GRPCRoute
+metadata:
+  name: grpc-route
+spec:
+  parentRefs:
+  - name: myapp-gateway
+  hostnames:
+  - "grpc.example.com"
+  rules:
+  - backendRefs:
+    - name: grpc-service
+      port: 50051
+```
+
+**헤더 기반 라우팅**:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: header-based-route
+spec:
+  parentRefs:
+  - name: myapp-gateway
+  rules:
+  - matches:
+    - headers:
+      - name: X-Version
+        value: v2
+    backendRefs:
+    - name: myapp-v2
+      port: 80
+  - backendRefs:
+    - name: myapp-v1
+      port: 80
+```
+
+**모니터링**:
+
+```bash
+# ALB Controller 로그 확인
+kubectl logs -n alb-infra -l app=alb-controller
+
+# Gateway 상태 확인
+kubectl get gateway myapp-gateway -o yaml
+
+# HTTPRoute 상태 확인
+kubectl get httproute myapp-route -o yaml
+
+# ApplicationLoadBalancer 상태 확인
+kubectl get applicationloadbalancer -n alb-infra
+```
+
+**장점**:
+- ✅ Kubernetes Gateway API 표준 (이식성 향상)
+- ✅ AGIC보다 빠른 배포 속도
+- ✅ 더 간단한 설정 및 관리
+- ✅ 자동 스케일링 (수동 설정 불필요)
+- ✅ 다양한 프로토콜 지원 (gRPC, TCP, TLS)
+- ✅ 트래픽 분할 및 헤더 기반 라우팅 용이
+- ✅ WAF v2와 네이티브 통합
+
+**단점**:
+- ⚠️ 비교적 새로운 서비스 (2023년 GA)
+- ⚠️ 일부 고급 기능은 아직 개발 중
+- ❌ 멀티 클라우드 미지원
+
+#### 선택 가이드
+
+**Nginx Ingress를 선택하는 경우**:
+- 비용 효율성이 중요한 경우
+- 빠른 배포와 변경이 필요한 경우
+- Canary 배포, A/B 테스팅이 필요한 경우
+- 다양한 Ingress 기능이 필요한 경우
+- 멀티 클라우드 전략을 고려하는 경우
+
+**AGC를 선택하는 경우** (권장 - Azure 환경):
+- Azure 네이티브 솔루션을 선호하는 경우
+- WAF가 필요하지만 빠른 배포도 중요한 경우
+- Kubernetes Gateway API 표준을 따르고 싶은 경우
+- gRPC, WebSocket 등 다양한 프로토콜 지원이 필요한 경우
+- 자동 스케일링이 필요한 경우
+- 최신 Azure 기능과 통합이 필요한 경우
+
+**AGIC를 선택하는 경우**:
+- 기존 Application Gateway 인프라를 활용하는 경우
+- 매우 복잡한 라우팅 규칙이 필요한 경우
+- Private Link를 통한 보안 연결이 필요한 경우
+- 레거시 시스템과의 통합이 필요한 경우
 
 **Internal Load Balancer**:
 
@@ -356,7 +783,158 @@ spec:
         emptyDir: {}
 ```
 
-### 3. Azure Key Vault 통합
+### 3. Workload Identity (권장 - 최신 인증 방식)
+
+Workload Identity는 Pod가 Azure 리소스에 접근할 때 사용하는 최신 인증 방식입니다. 기존 Pod Identity를 대체하며 더 안전하고 관리가 쉽습니다.
+
+**특징**:
+- ✅ OIDC 기반 표준 인증
+- ✅ Pod Identity보다 안전하고 간단
+- ✅ Azure AD와 네이티브 통합
+- ✅ 별도 인프라 컴포넌트 불필요
+- ✅ 노드 레벨 권한 불필요
+
+**Workload Identity 활성화**:
+
+```bash
+# 1. 클러스터에 Workload Identity 활성화
+az aks update \
+  --resource-group $RESOURCE_GROUP \
+  --name $CLUSTER \
+  --enable-oidc-issuer \
+  --enable-workload-identity
+
+# 2. OIDC Issuer URL 가져오기
+OIDC_ISSUER=$(az aks show \
+  --resource-group $RESOURCE_GROUP \
+  --name $CLUSTER \
+  --query "oidcIssuerProfile.issuerUrl" \
+  --output tsv)
+
+echo $OIDC_ISSUER
+```
+
+**User Assigned Managed Identity 생성**:
+
+```bash
+# 3. Managed Identity 생성
+az identity create \
+  --resource-group $RESOURCE_GROUP \
+  --name myWorkloadIdentity
+
+# Identity Client ID 가져오기
+CLIENT_ID=$(az identity show \
+  --resource-group $RESOURCE_GROUP \
+  --name myWorkloadIdentity \
+  --query 'clientId' \
+  --output tsv)
+
+echo $CLIENT_ID
+```
+
+**Azure 리소스 권한 부여** (예: Key Vault):
+
+```bash
+# 4. Key Vault에 대한 권한 부여
+az keyvault set-policy \
+  --name myKeyVault \
+  --object-id $(az identity show \
+    --resource-group $RESOURCE_GROUP \
+    --name myWorkloadIdentity \
+    --query principalId \
+    --output tsv) \
+  --secret-permissions get list
+```
+
+**Federated Identity Credential 생성**:
+
+```bash
+# 5. Kubernetes ServiceAccount와 Azure Identity 연결
+az identity federated-credential create \
+  --name myFederatedCredential \
+  --identity-name myWorkloadIdentity \
+  --resource-group $RESOURCE_GROUP \
+  --issuer $OIDC_ISSUER \
+  --subject system:serviceaccount:default:workload-identity-sa \
+  --audience api://AzureADTokenExchange
+```
+
+**Kubernetes ServiceAccount 생성**:
+
+```yaml
+# service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workload-identity-sa
+  namespace: default
+  annotations:
+    azure.workload.identity/client-id: "${CLIENT_ID}"
+  labels:
+    azure.workload.identity/use: "true"
+```
+
+**Pod에서 Workload Identity 사용**:
+
+```yaml
+# pod-with-workload-identity.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  namespace: default
+  labels:
+    azure.workload.identity/use: "true"
+spec:
+  serviceAccountName: workload-identity-sa
+  containers:
+  - name: myapp
+    image: myapp:1.0
+    env:
+    - name: AZURE_CLIENT_ID
+      value: "${CLIENT_ID}"
+    # Azure SDK가 자동으로 Workload Identity 사용
+```
+
+**Python 코드 예시** (Azure SDK 사용):
+
+```python
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+
+# Workload Identity가 자동으로 사용됨
+credential = DefaultAzureCredential()
+secret_client = SecretClient(
+    vault_url="https://mykeyvault.vault.azure.net",
+    credential=credential
+)
+
+# Secret 가져오기
+secret = secret_client.get_secret("database-password")
+print(f"Secret value: {secret.value}")
+```
+
+**검증**:
+
+```bash
+# Pod 로그 확인
+kubectl logs myapp
+
+# ServiceAccount 확인
+kubectl describe sa workload-identity-sa
+
+# Pod에 annotation이 주입되었는지 확인
+kubectl get pod myapp -o yaml | grep azure.workload.identity
+```
+
+**Best Practices**:
+- ✅ 네임스페이스별로 ServiceAccount 분리
+- ✅ 최소 권한 원칙 적용 (필요한 권한만 부여)
+- ✅ Federated Credential의 subject를 정확히 지정
+- ✅ Azure Policy로 Workload Identity 사용 강제
+- ❌ 하나의 Identity를 여러 용도로 재사용하지 않기
+
+### 4. Azure Key Vault 통합
 
 **Secrets Store CSI Driver**:
 
@@ -391,6 +969,251 @@ spec:
           objectVersion: ""
     tenantId: "your-tenant-id"
 ```
+
+**Workload Identity와 함께 사용**:
+
+```yaml
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: azure-keyvault-workload-identity
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "false"
+    clientID: "${CLIENT_ID}"  # Workload Identity Client ID
+    keyvaultName: "myKeyVault"
+    cloudName: ""
+    objects: |
+      array:
+        - |
+          objectName: database-password
+          objectType: secret
+    tenantId: "your-tenant-id"
+```
+
+**Pod에서 사용**:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    azure.workload.identity/use: "true"
+spec:
+  serviceAccountName: workload-identity-sa
+  containers:
+  - name: myapp
+    image: myapp:1.0
+    volumeMounts:
+    - name: secrets-store
+      mountPath: "/mnt/secrets"
+      readOnly: true
+  volumes:
+  - name: secrets-store
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: azure-keyvault-workload-identity
+```
+
+### 5. 이미지 보안 - Trivy
+
+Trivy는 컨테이너 이미지, 파일시스템, Git 리포지토리의 취약점을 스캔하는 오픈소스 보안 스캐너입니다.
+
+**특징**:
+- ✅ 포괄적인 취약점 스캔 (OS 패키지, 애플리케이션 의존성)
+- ✅ 빠르고 정확한 스캔
+- ✅ CI/CD 파이프라인 통합 용이
+- ✅ Kubernetes 매니페스트 보안 검사
+- ✅ 무료 오픈소스
+
+**Trivy 설치**:
+
+```bash
+# Linux
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+
+# macOS
+brew install trivy
+```
+
+**이미지 취약점 스캔**:
+
+```bash
+# 기본 스캔
+trivy image nginx:1.27
+
+# 심각도 필터링 (HIGH, CRITICAL만)
+trivy image --severity HIGH,CRITICAL nginx:1.27
+
+# JSON 출력
+trivy image --format json --output results.json nginx:1.27
+
+# 특정 취약점 무시
+trivy image --ignore-unfixed nginx:1.27
+```
+
+**Azure Container Registry 이미지 스캔**:
+
+```bash
+# ACR 로그인
+az acr login --name myregistry
+
+# ACR 이미지 스캔
+trivy image myregistry.azurecr.io/myapp:1.0
+```
+
+**Kubernetes 매니페스트 스캔**:
+
+```bash
+# YAML 파일 보안 검사
+trivy config deployment.yaml
+
+# 전체 디렉토리 스캔
+trivy config ./k8s-manifests/
+
+# Helm 차트 스캔
+trivy config ./my-chart/
+```
+
+**CI/CD 파이프라인 통합** (GitHub Actions):
+
+```yaml
+# .github/workflows/trivy-scan.yml
+name: Trivy Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'myregistry.azurecr.io/myapp:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Fail build on critical vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'myregistry.azurecr.io/myapp:${{ github.sha }}'
+        exit-code: '1'
+        severity: 'CRITICAL'
+```
+
+**Azure DevOps 파이프라인**:
+
+```yaml
+# azure-pipelines.yml
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Docker@2
+  inputs:
+    containerRegistry: 'myACR'
+    repository: 'myapp'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+    tags: '$(Build.BuildId)'
+
+- script: |
+    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+    echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+    sudo apt-get update
+    sudo apt-get install trivy
+  displayName: 'Install Trivy'
+
+- script: |
+    trivy image --severity HIGH,CRITICAL --exit-code 1 myregistry.azurecr.io/myapp:$(Build.BuildId)
+  displayName: 'Scan image with Trivy'
+```
+
+**Trivy Operator (Kubernetes 내 지속적 스캔)**:
+
+```bash
+# Trivy Operator 설치 (Helm)
+helm repo add aqua https://aquasecurity.github.io/helm-charts/
+helm repo update
+
+helm install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --set trivy.ignoreUnfixed=true
+```
+
+**VulnerabilityReport 확인**:
+
+```bash
+# 클러스터 내 모든 취약점 리포트 조회
+kubectl get vulnerabilityreports -A
+
+# 특정 워크로드의 취약점 확인
+kubectl get vulnerabilityreport -n default
+
+# 상세 내용 확인
+kubectl describe vulnerabilityreport <report-name> -n default
+```
+
+**정책 적용** (Admission Controller):
+
+```yaml
+# 높은 심각도 취약점이 있는 이미지 배포 차단
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-policies
+  namespace: trivy-system
+data:
+  policy.rego: |
+    package trivy
+    
+    deny[msg] {
+      input.vulnerabilities[_].severity == "CRITICAL"
+      msg := "Image contains CRITICAL vulnerabilities"
+    }
+    
+    deny[msg] {
+      count([v | v := input.vulnerabilities[_]; v.severity == "HIGH"]) > 10
+      msg := "Image contains more than 10 HIGH vulnerabilities"
+    }
+```
+
+**Best Practices**:
+- ✅ 모든 이미지를 프로덕션 배포 전 스캔
+- ✅ CI/CD 파이프라인에 자동 스캔 통합
+- ✅ CRITICAL 취약점 발견 시 빌드 실패 처리
+- ✅ 정기적인 실행 중인 이미지 재스캔 (Trivy Operator)
+- ✅ 베이스 이미지를 최신 패치 버전으로 유지
+- ✅ 취약점 리포트를 보안 팀과 공유
+- ❌ 오래된 이미지를 프로덕션에 배포하지 않기
+
+### 6. 이전 섹션
 
 **Pod에서 사용**:
 
