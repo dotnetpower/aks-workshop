@@ -22,18 +22,13 @@ Ingress는 클러스터 외부에서 내부 서비스로의 HTTP/HTTPS 트래픽
 
 ## 아키텍처
 
-```
-인터넷
-   ↓
-Azure Load Balancer (단일 공인 IP)
-   ↓
-Ingress Controller (Nginx Pod)
-   ↓
-Ingress 규칙 적용
-   ↓
-내부 Service (ClusterIP)
-   ↓
-Pod
+```mermaid
+graph TD
+    A[인터넷] --> B[Azure Load Balancer<br/>단일 공인 IP]
+    B --> C[Ingress Controller<br/>Nginx Pod]
+    C --> D[Ingress 규칙 적용]
+    D --> E[내부 Service<br/>ClusterIP]
+    E --> F[Pod]
 ```
 
 ## Nginx Ingress Controller 설치

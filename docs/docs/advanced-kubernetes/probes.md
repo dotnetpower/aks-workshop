@@ -47,16 +47,12 @@ Kubernetes는 컨테이너의 상태를 주기적으로 확인하여 애플리�
 
 ## Probe의 실행 순서
 
-```
-컨테이너 시작
-   ↓
-Startup Probe 시작 (설정된 경우)
-   ↓
-Startup Probe 성공
-   ↓
-Liveness Probe + Readiness Probe 시작
-   ↓
-애플리케이션 실행 중
+```mermaid
+graph TD
+    A[컨테이너 시작] --> B[Startup Probe 시작<br/>설정된 경우]
+    B --> C[Startup Probe 성공]
+    C --> D[Liveness Probe +<br/>Readiness Probe 시작]
+    D --> E[애플리케이션 실행 중]
 ```
 
 ## Probe 메커니즘
