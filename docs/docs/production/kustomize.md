@@ -1347,6 +1347,6 @@ kubectl kustomize overlays/prod/ -o json | jq
 
 ## 다음 단계
 
-- [Blue-Green 배포](./blue-green-deployments) - Kustomize로 배포 전략 구현
-- [Canary 배포](./canary-deployments) - 점진적 배포 자동화
+- [Blue-Green 배포](../kubernetes-basics/blue-green-deployments) - Kustomize로 배포 전략 구현
+- [Canary 배포](../kubernetes-basics/canary-deployments) - 점진적 배포 자동화
 - [고급 Kubernetes](../advanced-kubernetes/intro) - Helm과 Kustomize 비교
