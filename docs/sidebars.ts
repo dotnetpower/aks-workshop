@@ -17,6 +17,7 @@ const sidebars: SidebarsConfig = {
         "kubernetes-basics/services",
         "kubernetes-basics/configmaps",
         "kubernetes-basics/secrets",
+        "kubernetes-basics/kustomize",
         "kubernetes-basics/blue-green-deployments",
         "kubernetes-basics/canary-deployments",
       ],
