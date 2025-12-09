@@ -158,7 +158,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.14.2
+        image: nginx:1.27
         ports:
         - containerPort: 80
         # Startup Probe: 컨테이너가 시작되었는지 확인
@@ -238,7 +238,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.14.2
+        image: nginx:1.27
         ports:
         - containerPort: 80
         # Liveness Probe: 컨테이너가 살아있는지 확인
@@ -316,7 +316,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.14.2
+        image: nginx:1.27
         ports:
         - containerPort: 80
         # Readiness Probe: 트래픽을 받을 준비가 되었는지 확인
@@ -395,7 +395,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.14.2
+        image: nginx:1.27
         ports:
         - containerPort: 80
         # Startup Probe: 초기 시작 확인 (최대 300초 대기)

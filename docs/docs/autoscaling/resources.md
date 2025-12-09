@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.17
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.17
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -84,7 +84,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.17
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -109,7 +109,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.17
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -167,10 +167,10 @@ LimitRange는 새로운 Pod에만 적용됩니다. 기존 Pod를 재생성해야
 
 ```bash
 # 이미지를 변경하여 새 ReplicaSet 생성
-kubectl set image deployment/workload1-dep nginx=nginx:1.18
-kubectl set image deployment/workload2-dep nginx=nginx:1.18
-kubectl set image deployment/workload3-dep nginx=nginx:1.18
-kubectl set image deployment/workload4-dep nginx=nginx:1.18
+kubectl set image deployment/workload1-dep nginx=nginx:1.27
+kubectl set image deployment/workload2-dep nginx=nginx:1.27
+kubectl set image deployment/workload3-dep nginx=nginx:1.27
+kubectl set image deployment/workload4-dep nginx=nginx:1.27
 
 # Pod 확인
 kubectl get pods
@@ -236,10 +236,10 @@ kubectl describe resourcequota
 
 ```bash
 # 이미지 변경으로 재배포 시도
-kubectl set image deployment/workload1-dep nginx=nginx:1.19
-kubectl set image deployment/workload2-dep nginx=nginx:1.19
-kubectl set image deployment/workload3-dep nginx=nginx:1.19
-kubectl set image deployment/workload4-dep nginx=nginx:1.19
+kubectl set image deployment/workload1-dep nginx=nginx:1.27
+kubectl set image deployment/workload2-dep nginx=nginx:1.27
+kubectl set image deployment/workload3-dep nginx=nginx:1.27
+kubectl set image deployment/workload4-dep nginx=nginx:1.27
 
 # ReplicaSet 이벤트 확인
 kubectl describe replicaset -l app=workload1
@@ -326,10 +326,10 @@ spec:
 kubectl apply -f namespace-resource-quotas-double.yaml
 
 # 이미지 변경
-kubectl set image deployment/workload1-dep nginx=nginx:1.20
-kubectl set image deployment/workload2-dep nginx=nginx:1.20
-kubectl set image deployment/workload3-dep nginx=nginx:1.20
-kubectl set image deployment/workload4-dep nginx=nginx:1.20
+kubectl set image deployment/workload1-dep nginx=nginx:1.27
+kubectl set image deployment/workload2-dep nginx=nginx:1.27
+kubectl set image deployment/workload3-dep nginx=nginx:1.27
+kubectl set image deployment/workload4-dep nginx=nginx:1.27
 
 # 빠르게 업데이트됨
 kubectl get pods -w
@@ -349,7 +349,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx:1.18
+    image: nginx:1.27
     resources:
       requests:
         cpu: 200m
@@ -377,7 +377,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx:1.18
+    image: nginx:1.27
     resources:
       requests:
         cpu: 100m
@@ -405,7 +405,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx:1.18
+    image: nginx:1.27
     # 리소스 설정 없음
 ```
 

@@ -158,7 +158,7 @@ metadata:
 spec:
   containers:
     - name: app
-      image: nginx:1.21
+      image: nginx:1.27
       env:
         # 개별 키를 환경 변수로
         - name: DB_PASSWORD
@@ -183,7 +183,7 @@ metadata:
 spec:
   containers:
     - name: app
-      image: nginx:1.21
+      image: nginx:1.27
       envFrom:
         - secretRef:
             name: simple-secret
@@ -199,7 +199,7 @@ metadata:
 spec:
   containers:
     - name: app
-      image: nginx:1.21
+      image: nginx:1.27
       volumeMounts:
         - name: secret-volume
           mountPath: /secret-data
@@ -240,7 +240,7 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: workload
-          image: nginx:1.18
+          image: nginx:1.27
           ports:
             - containerPort: 80
           # 모든 Secret 키를 환경 변수로

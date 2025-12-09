@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -158,7 +158,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: app
-        image: nginx:1.18
+        image: nginx:1.27
         volumeMounts:
         - name: data
           mountPath: /mnt/data
@@ -242,7 +242,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: app
-        image: nginx:1.18
+        image: nginx:1.27
         resources:
           requests:
             cpu: 100m

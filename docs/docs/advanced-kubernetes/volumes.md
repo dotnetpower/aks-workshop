@@ -28,7 +28,7 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx:1.18
+    image: nginx:1.27
     volumeMounts:
     - name: cache-volume
       mountPath: /cache
@@ -185,7 +185,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         volumeMounts:
         - name: azure-disk
           mountPath: /data
@@ -239,7 +239,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         volumeMounts:
         - name: azure-files
           mountPath: /shared-data
@@ -307,7 +307,7 @@ spec:
     spec:
       containers:
       - name: workload
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         volumeMounts:
@@ -400,7 +400,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         volumeMounts:
         - name: shared-storage
           mountPath: /usr/share/nginx/html

@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: complex-web
-        image: k8s.gcr.io/hpa-example
+        image: registry.k8s.io/hpa-example
         ports:
         - containerPort: 80
         resources:

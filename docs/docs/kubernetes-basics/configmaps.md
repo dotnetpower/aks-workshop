@@ -133,7 +133,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.21
+          image: nginx:1.27
           env:
             # 개별 키를 환경 변수로
             - name: APP_NAME
@@ -173,7 +173,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.21
+          image: nginx:1.27
           volumeMounts:
             # 파일로 마운트
             - name: config-volume
@@ -214,7 +214,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.21
+          image: nginx:1.27
           # 환경 변수로 주입
           env:
             - name: APP_NAME

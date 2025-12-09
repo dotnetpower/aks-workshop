@@ -297,7 +297,7 @@ spec:
       # 앱 컨테이너
       containers:
       - name: app
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -390,7 +390,7 @@ spec:
       
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         volumeMounts:
@@ -468,7 +468,7 @@ spec:
       
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         volumeMounts:
@@ -541,7 +541,7 @@ spec:
       
       containers:
       - name: app
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
       

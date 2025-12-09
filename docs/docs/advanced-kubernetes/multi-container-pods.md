@@ -136,7 +136,7 @@ spec:
       containers:
       # 메인 컨테이너: Nginx
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         volumeMounts:
@@ -207,7 +207,7 @@ spec:
       containers:
       # 1. Nginx - 잘못된 포트 설정
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 8080  # Nginx는 기본적으로 80 포트 사용
           protocol: TCP
@@ -324,7 +324,7 @@ spec:
       containers:
       # 1. Nginx - 올바른 포트
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80  # ✅ 수정됨
           protocol: TCP
@@ -412,7 +412,7 @@ spec:
       containers:
       # 메인 애플리케이션
       - name: app
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         volumeMounts:

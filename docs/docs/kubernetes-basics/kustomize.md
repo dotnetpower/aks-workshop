@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: nginx:1.25
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -350,7 +350,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: nginx:1.25
+        image: nginx:1.27
         ports:
         - containerPort: 80
         envFrom:
@@ -454,7 +454,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: nginx:1.25
+        image: nginx:1.27
         ports:
         - containerPort: 80
         envFrom:

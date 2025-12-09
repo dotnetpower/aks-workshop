@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -71,7 +71,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -103,7 +103,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -165,7 +165,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -237,7 +237,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources:
@@ -299,7 +299,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         resources:
           requests:
             cpu: 50m

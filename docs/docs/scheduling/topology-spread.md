@@ -45,7 +45,7 @@ spec:
             app: nginx-1
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         ports:
         - containerPort: 80
         resources: 
@@ -217,7 +217,7 @@ spec:
             app: zone-app
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         resources: 
           requests:
             cpu: 100m
@@ -289,7 +289,7 @@ spec:
             app: multi-app
       containers:
       - name: nginx
-        image: nginx:1.18
+        image: nginx:1.27
         resources: 
           requests:
             cpu: 100m

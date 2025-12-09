@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: nginx:1.18
+          image: nginx:1.27
           ports:
             - containerPort: 80
       nodeSelector:
@@ -88,7 +88,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: nginx:1.19  # 버전 업데이트
+          image: nginx:1.27  # 버전 업데이트
           ports:
             - containerPort: 80
       nodeSelector:
@@ -148,7 +148,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: nginx:1.20
+          image: nginx:1.27
           ports:
             - containerPort: 80
       nodeSelector:
@@ -199,7 +199,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: nginx:1.21
+          image: nginx:1.27
           ports:
             - containerPort: 80
 ```
