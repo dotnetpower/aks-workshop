@@ -6,11 +6,7 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "환경 설정",
-      items: [
-        "setup/prerequisites",
-        "setup/cluster-setup",
-        "setup/aks-best-practices",
-      ],
+      items: ["setup/prerequisites", "setup/cluster-setup"],
     },
     {
       type: "category",
@@ -23,20 +19,6 @@ const sidebars: SidebarsConfig = {
         "kubernetes-basics/secrets",
         "kubernetes-basics/blue-green-deployments",
         "kubernetes-basics/canary-deployments",
-      ],
-    },
-    {
-      type: "category",
-      label: "고급 Kubernetes",
-      items: [
-        "advanced-kubernetes/intro",
-        "advanced-kubernetes/volumes",
-        "advanced-kubernetes/advanced-volumes",
-        "advanced-kubernetes/ingress",
-        "advanced-kubernetes/probes",
-        "advanced-kubernetes/init-containers",
-        "advanced-kubernetes/multi-container-pods",
-        "advanced-kubernetes/jobs",
       ],
     },
     {
@@ -68,6 +50,20 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "고급 Kubernetes",
+      items: [
+        "advanced-kubernetes/intro",
+        "advanced-kubernetes/volumes",
+        "advanced-kubernetes/advanced-volumes",
+        "advanced-kubernetes/ingress",
+        "advanced-kubernetes/probes",
+        "advanced-kubernetes/init-containers",
+        "advanced-kubernetes/multi-container-pods",
+        "advanced-kubernetes/jobs",
+      ],
+    },
+    {
+      type: "category",
       label: "실전 Kubernetes",
       items: [
         "production/intro",
@@ -89,6 +85,11 @@ const sidebars: SidebarsConfig = {
         "istio/authorization",
         "advanced/tips",
       ],
+    },
+    {
+      type: "category",
+      label: "AKS Best Practices",
+      items: ["setup/aks-best-practices"],
     },
     "cleanup",
   ],
